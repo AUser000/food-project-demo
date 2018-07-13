@@ -75,7 +75,7 @@
         android:layout_marginStart="16dp"
         android:entries="@array/phoneCodes"
         android:spinnerMode="dialog"
-        app:layout_constraintBaseline_toBaselineOf="@+id/editText3"
+        app:layout_constraintBottom_toBottomOf="@+id/editText3"
         app:layout_constraintEnd_toStartOf="@+id/editText3"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintStart_toStartOf="parent" />
