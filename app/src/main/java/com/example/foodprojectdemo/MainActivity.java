@@ -1,5 +1,6 @@
 package com.example.foodprojectdemo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -56,9 +56,11 @@ public class MainActivity extends AppCompatActivity
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
-            // Make a simple toast just for now !!!
-            Toast noUserToast = Toast.makeText(this, "No User!", Toast.LENGTH_SHORT);
-            noUserToast.show();
+            // Load registration activity
+            Intent intent = new Intent(this, RegisterActivity.class);
+            startActivity(intent);
+        } else {
+            // Load the content to UI here
         }
     }
 
