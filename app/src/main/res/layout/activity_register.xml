@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:ems="10"
         android:hint="name@example.com"
         android:inputType="textEmailAddress"
@@ -52,30 +52,30 @@
 
     <EditText
         android:id="@+id/editText3"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
         android:ems="10"
         android:inputType="phone"
         android:maxLength="9"
         android:textSize="20sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/spinner"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/spinner"
-        app:layout_constraintTop_toBottomOf="@+id/editText4" />
+        app:layout_constraintHorizontal_weight="8"
+        app:layout_constraintStart_toEndOf="@+id/spinner" />
 
     <Spinner
         android:id="@+id/spinner"
+        style="@style/Base.Widget.AppCompat.Spinner.Underlined"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_height="43dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="28dp"
         android:entries="@array/phoneCodes"
-        android:padding="@dimen/nav_header_vertical_spacing"
-        app:layout_constraintEnd_toStartOf="@+id/editText3"
+        android:spinnerMode="dialog"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintHorizontal_weight="2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editText4" />
 
@@ -89,5 +89,5 @@
         android:text="REGISTER"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinner" />
+        app:layout_constraintTop_toBottomOf="@+id/editText3" />
 </android.support.constraint.ConstraintLayout>
