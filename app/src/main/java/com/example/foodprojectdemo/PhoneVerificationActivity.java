@@ -1,57 +1,40 @@
 package com.example.foodprojectdemo;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
-import com.google.firebase.FirebaseException;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthProvider;
-
-import java.util.concurrent.TimeUnit;
+import static com.example.foodprojectdemo.RegisterActivity.EXTRA_SMS_CODE;
 
 public class PhoneVerificationActivity extends AppCompatActivity {
 
-    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
+    private static final int VERIFICATION_CODE_LENGTH = 6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phone_verification);
-
-        ///////////////////////////////////////////////////////////////////////////////////
-        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-            @Override
-            public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
-                Log.d("RegisterActivity", "onVerificationCompleted:" + phoneAuthCredential);
-            }
-
-            @Override
-            public void onVerificationFailed(FirebaseException e) {
-            }
-        };
-        ///////////////////////////////////////////////////////////////////////////////////
+        updateUIOnVerificationCompleted(getIntent().getStringExtra(EXTRA_SMS_CODE));
     }
 
-    public void registerPhoneNumber(String phoneNumber) {
-        PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                phoneNumber,
-                60,
-                TimeUnit.SECONDS,
-                this,
-                mCallbacks
-        );
+    // fill EditText fields with smsCode
+    private void updateUIOnVerificationCompleted(String smsCode) {
+        EditText[] texts = new EditText[VERIFICATION_CODE_LENGTH];
+
+        texts[0] = findViewById(R.id.smsCode1);
+        texts[1] = findViewById(R.id.smsCode2);
+        texts[2] = findViewById(R.id.smsCode3);
+        texts[3] = findViewById(R.id.smsCode4);
+        texts[4] = findViewById(R.id.smsCode5);
+        texts[5] = findViewById(R.id.smsCode6);
+        for (int i = 0; i < VERIFICATION_CODE_LENGTH; i++) {
+            texts[i].setText(String.valueOf(smsCode.charAt(i)), TextView.BufferType.EDITABLE);
+        }
     }
 
-    public void register(View view) {
-
-        /*
-        StringBuilder builder = new StringBuilder();
-        builder.append(phoneCodeSpinner.getSelectedItem().toString());
-        builder.append(phoneNumber.getText().toString());
-        Log.d("RegisterActivity", "phoneNumber: " + builder.toString());
-        registerPhoneNumber(builder.toString());
-        */
+    public void verify(View view) {
+        finish();
     }
 }
