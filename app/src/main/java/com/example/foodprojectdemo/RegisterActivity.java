@@ -1,39 +1,19 @@
 package com.example.foodprojectdemo;
-
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import com.google.firebase.FirebaseException;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthProvider;
-
-import java.util.concurrent.TimeUnit;
-
 public class RegisterActivity extends AppCompatActivity {
 
-    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
+    static final String EXTRA_USER_DETAILS = "com.example.foodprojectdemo.EXTRA_USER_DETAILS";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
-        ///////////////////////////////////////////////////////////////////////////////////
-        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-            @Override
-            public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
-                Log.d("RegisterActivity", "onVerificationCompleted:" + phoneAuthCredential);
-            }
-
-            @Override
-            public void onVerificationFailed(FirebaseException e) {
-            }
-        };
-        ///////////////////////////////////////////////////////////////////////////////////
     }
 
     @Override
@@ -41,24 +21,28 @@ public class RegisterActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
-    public void registerPhoneNumber(String phoneNumber) {
-        PhoneAuthProvider.getInstance().verifyPhoneNumber(
-               phoneNumber,
-               60,
-                TimeUnit.SECONDS,
-                this,
-                mCallbacks
-        );
-    }
-
     public void register(View view) {
-        EditText phoneNumber = findViewById(R.id.phoneNumer);
-        Spinner phoneCodeSpinner = findViewById(R.id.phoneCodeSpinner);
-
+        Bundle bundle = new Bundle();
         StringBuilder builder = new StringBuilder();
-        builder.append(phoneCodeSpinner.getSelectedItem().toString());
-        builder.append(phoneNumber.getText().toString());
-        Log.d("RegisterActivity", "phoneNumber: " + builder.toString());
-        registerPhoneNumber(builder.toString());
+        Intent intent = new Intent(RegisterActivity.this, PhoneVerificationActivity.class);
+
+        // build phone number combining phone code
+        builder.append(
+                ((Spinner) findViewById(R.id.phoneCodeSpinner)).getSelectedItem().toString());
+        builder.append(
+                ((EditText) findViewById(R.id.phoneNumer)).getText().toString());
+
+        // bundle up everything
+        bundle.putString("FIRST_NAME",
+                ((EditText) findViewById(R.id.firstNameText)).getText().toString());
+        bundle.putString("LAST_NAME",
+                ((EditText) findViewById(R.id.lastNameText)).getText().toString());
+        bundle.putString("EMAIL",
+                ((EditText) findViewById(R.id.email)).getText().toString());
+        bundle.putString("PHONE_NUMBER", builder.toString());
+
+        // start new activity
+        intent.putExtra(EXTRA_USER_DETAILS, bundle);
+        startActivity(intent);
     }
 }
