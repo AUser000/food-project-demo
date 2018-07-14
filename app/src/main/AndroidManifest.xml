@@ -22,7 +22,10 @@
         <activity
             android:name=".RegisterActivity"
             android:label="Register"
-            android:noHistory="true"></activity>
+            android:noHistory="true" />
+        <activity
+            android:name=".PhoneVerificationActivity"
+            android:label="Verification Code"></activity>
     </application>
 
 </manifest>
