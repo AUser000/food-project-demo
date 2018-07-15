@@ -1,10 +1,17 @@
 package com.example.foodprojectdemo;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
+import android.location.LocationListener;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,27 +22,36 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.MarkerOptions;
 ;import static android.content.ContentValues.TAG;
 
 /**
  * Created by Dhanushka Dharmasena on 13/07/2018.
  */
-public class MapFragment extends Fragment implements com.google.android.gms.maps.OnMapReadyCallback {
+public class MapFragment extends Fragment implements com.google.android.gms.maps.OnMapReadyCallback{
     GoogleMap map;
     FloatingActionButton fabM1, fabM2, fabM3;
     Animation fabOpen, fabClose, fabRotateForward, fabRotateBackWord;
     boolean fabIsOpen = false;
-    public MapFragment() {}
+    LocationManager locationManager;
+    String provider;
+    Location location;
+
+    public MapFragment() {
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v =  inflater.inflate(R.layout.map_fragment, container, false);
+        View v = inflater.inflate(R.layout.map_fragment, container, false);
         //fabM1 = (FloatingActionButton)
         return v;
     }
@@ -43,7 +59,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        SupportMapFragment mapFragment = (SupportMapFragment)getChildFragmentManager().findFragmentById(R.id.map1);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map1);
         mapFragment.getMapAsync(this);
 
         fabM1 = (FloatingActionButton) view.findViewById(R.id.fabM1);
@@ -61,15 +77,33 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                 animateFab();
             }
         });
-
         fabM2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 animateFab();
-                Toast.makeText(getActivity().getApplicationContext(), "location btn function", Toast.LENGTH_SHORT ).show();
+                Toast.makeText(getActivity().getApplicationContext(), "location btn function", Toast.LENGTH_SHORT).show();
+                locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+                provider = locationManager.getBestProvider(new Criteria(), false);
+                if (ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                location = locationManager.getLastKnownLocation(provider);
+                Toast.makeText(getActivity().getApplicationContext(), "" + location, Toast.LENGTH_SHORT).show();
+                if(location != null) {
+                    map.addMarker(new MarkerOptions().
+                            position(new LatLng(location.getLatitude(), location.getLongitude()))
+                            );
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 12));
+                }
             }
         });
-
         fabM3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -77,6 +111,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                 Toast.makeText(getActivity().getApplicationContext(), "filter btn function", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 
     @Override
