@@ -1,8 +1,8 @@
 package com.example.foodprojectdemo;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -13,9 +13,11 @@ import com.example.foodprojectdemo.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DatabaseReference;
@@ -59,6 +61,13 @@ public class PhoneVerificationActivity extends AppCompatActivity {
 
             @Override
             public void onVerificationFailed(FirebaseException e) {
+                Log.w(TAG, "onVerificationFailed", e);
+
+                if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                    // Invalid request
+                } else if (e instanceof FirebaseTooManyRequestsException) {
+                    // the SMS quota for the project has been exceeded
+                }
             }
         };
         ///////////////////////////////////////////////////////////////////////////////////
@@ -68,13 +77,13 @@ public class PhoneVerificationActivity extends AppCompatActivity {
     }
 
     // write new user to database
-    private void writeNewUser() {
+    private void writeNewUser(String userId) {
         Bundle bundle = getIntent().getBundleExtra(EXTRA_USER_DETAILS);
         User user = new User(
             bundle.getString("FIRST_NAME"), bundle.getString("LAST_NAME"),
                 bundle.getString("EMAIL"), bundle.getString("TYPE"));
 
-        mDatabaseRef.child("users").child(bundle.getString("PHONE_NUMBER")).setValue(user);
+        mDatabaseRef.child("users").child(userId).setValue(user);
     }
 
     // fill EditText fields with smsCode
@@ -112,6 +121,9 @@ public class PhoneVerificationActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithCredential:success");
+
+                            FirebaseUser user = task.getResult().getUser();
+                            writeNewUser(user.getUid());
                         } else {
                             Log.w(TAG, "signInWithCredential:failure");
                             if (task.getException() instanceof
@@ -134,7 +146,6 @@ public class PhoneVerificationActivity extends AppCompatActivity {
     }
 
     public void verify(View view) {
-        writeNewUser();
         finish();
     }
 }
