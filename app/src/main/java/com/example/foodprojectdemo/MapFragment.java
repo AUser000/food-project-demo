@@ -1,5 +1,6 @@
 package com.example.foodprojectdemo;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -13,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +24,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,13 +33,15 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 ;import static android.content.ContentValues.TAG;
 
 /**
  * Created by Dhanushka Dharmasena on 13/07/2018.
  */
-public class MapFragment extends Fragment implements com.google.android.gms.maps.OnMapReadyCallback{
+public class MapFragment extends Fragment implements com.google.android.gms.maps.OnMapReadyCallback, com.google.android.gms.location.LocationListener{
     GoogleMap map;
     FloatingActionButton fabM1, fabM2, fabM3;
     Animation fabOpen, fabClose, fabRotateForward, fabRotateBackWord;
@@ -43,6 +49,10 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
     LocationManager locationManager;
     String provider;
     Location location;
+    MarkerOptions markerOptions;
+    private FusedLocationProviderClient mFusedLocationClient;
+    public final int REQUEST_PERMISSION_LOCATION = 101;
+    private boolean permissionGranted = false;
 
     public MapFragment() {
     }
@@ -59,8 +69,9 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map1);
+        final SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map1);
         mapFragment.getMapAsync(this);
+        markerOptions = new MarkerOptions();
 
         fabM1 = (FloatingActionButton) view.findViewById(R.id.fabM1);
         fabM2 = (FloatingActionButton) view.findViewById(R.id.fabM2);
@@ -82,25 +93,21 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
             public void onClick(View view) {
                 animateFab();
                 Toast.makeText(getActivity().getApplicationContext(), "location btn function", Toast.LENGTH_SHORT).show();
+
+
+
                 locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
                 provider = locationManager.getBestProvider(new Criteria(), false);
-                if (ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                location = locationManager.getLastKnownLocation(provider);
-                Toast.makeText(getActivity().getApplicationContext(), "" + location, Toast.LENGTH_SHORT).show();
-                if(location != null) {
-                    map.addMarker(new MarkerOptions().
-                            position(new LatLng(location.getLatitude(), location.getLongitude()))
-                            );
-                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 12));
+
+                checkPermission();
+                if(permissionGranted) {
+                    location = locationManager.getLastKnownLocation(provider);
+                    if(location != null) {
+                        map.addMarker(markerOptions.
+                                position(new LatLng(location.getLatitude(), location.getLongitude()))
+                                );
+                        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 12));
+                    }
                 }
             }
         });
@@ -112,6 +119,20 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
             }
         });
 
+    }
+
+
+    private boolean checkPermission() {
+        int permissionCheck = ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION);
+        if(permissionCheck != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_PERMISSION_LOCATION
+            );
+            return false;
+        }
+        permissionGranted = true;
+        return true;
     }
 
     @Override
@@ -143,5 +164,13 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
             fabM3.setClickable(true) ;
             fabIsOpen = true;
         }
+    }
+
+    @Override
+    public void onLocationChanged(Location loc) {
+        location = loc;
+        map.addMarker(markerOptions.
+                position(new LatLng(location.getLatitude(), location.getLongitude()))
+        );
     }
 }
