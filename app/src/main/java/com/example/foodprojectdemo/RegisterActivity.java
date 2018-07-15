@@ -21,7 +21,7 @@ public class RegisterActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
-    public void register(View view) {
+    public void register(String type) {
         Bundle bundle = new Bundle();
         StringBuilder builder = new StringBuilder();
         Intent intent = new Intent(RegisterActivity.this, PhoneVerificationActivity.class);
@@ -40,9 +40,18 @@ public class RegisterActivity extends AppCompatActivity {
         bundle.putString("EMAIL",
                 ((EditText) findViewById(R.id.email)).getText().toString());
         bundle.putString("PHONE_NUMBER", builder.toString());
+        bundle.putString("TYPE", type);
 
         // start new activity
         intent.putExtra(EXTRA_USER_DETAILS, bundle);
         startActivity(intent);
+    }
+
+    public void registerCustomer(View view) {
+        register("customer");
+    }
+
+    public void registerTrader(View view) {
+        register("trader");
     }
 }
