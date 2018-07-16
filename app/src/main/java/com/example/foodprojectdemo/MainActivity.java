@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             // Load registration activity
-            Intent intent = new Intent(this, RegisterActivity.class);
+            Intent intent = new Intent(this, PhoneNumberActivity.class);
             startActivity(intent);
         } else {
             // Load the content to UI here
