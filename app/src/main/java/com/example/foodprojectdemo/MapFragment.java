@@ -30,8 +30,10 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -69,6 +71,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
     List<LocationData> locationDataList;
     TextView text;
     AlertDialog dialog;
+    Marker marker;
 
     public MapFragment() {
     }
@@ -122,10 +125,11 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                     location = locationManager.getLastKnownLocation(provider);
                     if(location != null) {
                         map.addMarker(markerOptions.
-                                position(new LatLng(location.getLatitude(), location.getLongitude()))
+                                position(new LatLng(location.getLatitude(), location.getLongitude())).
+                                        icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_x))
                                 );
                         map.animateCamera(CameraUpdateFactory.
-                                newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 12));
+                                newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 14));
                     } else {
                         text.setText("null location");
                     }
@@ -156,7 +160,8 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                                     double lat = locationdata.lat;
                                     double lng = locationdata.lng;
 
-                                    map.addMarker(new MarkerOptions().position(new LatLng(lat, lng)));
+                                    map.addMarker(new MarkerOptions().position(new LatLng(lat, lng))
+                                            );
                                 }
                             }
 
@@ -244,8 +249,14 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
 //    @Override
 //    public void onLocationChanged(Location loc) {
 //        location = loc;
-//        map.addMarker(markerOptions.
-//                position(new LatLng(location.getLatitude(), location.getLongitude()))
-//        );
+//        if (marker != null){
+//            marker.remove();
+//        }
+//        MarkerOptions markerOptions = new MarkerOptions();
+//        markerOptions
+//                .position(new LatLng(location.getLatitude(), location.getLongitude()))
+//                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_orange));
+//        marker = map.addMarker(markerOptions);
+//        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 14));
 //    }
 }
