@@ -40,6 +40,7 @@ import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.content.ContentValues.TAG;
 
@@ -63,7 +64,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
     DatabaseReference mChild;
-    ArrayList<LocationData> locationDataArrayList;
+    List<LocationData> locationDataList;
     TextView text;
 
     public MapFragment() {
@@ -82,7 +83,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
         final SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map1);
         mapFragment.getMapAsync(this);
         markerOptions = new MarkerOptions();
-        locationDataArrayList = new ArrayList<>();
+        locationDataList = new ArrayList<>();
         text = (TextView) view.findViewById(R.id.textOnMap);
 
         fabM1 = (FloatingActionButton) view.findViewById(R.id.fabM1);
@@ -132,17 +133,15 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
             @Override
             public void onClick(View view) {
                 animateFab();
-                Toast.makeText(getActivity().getApplicationContext(), "filter btn function", Toast.LENGTH_SHORT).show();
-
 
                 mChild.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot dataSnapshot1: dataSnapshot.getChildren()) {
-                            LocationData locationData = dataSnapshot.getValue(LocationData.class);
-                            locationDataArrayList.add(locationData);
+                        for (DataSnapshot dataSnap2shot1: dataSnapshot.getChildren()) {
+                            LocationData locationData = dataSnap2shot1.getValue(LocationData.class);
+                            locationDataList.add(locationData);
                         }
-                        for (LocationData locationdata: locationDataArrayList) {
+                        for (LocationData locationdata: locationDataList) {
                             double lat = locationdata.lat;
                             double lng = locationdata.lng;
 
