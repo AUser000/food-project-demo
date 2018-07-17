@@ -46,7 +46,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".PhoneNumberActivity"></activity>
+        <activity android:name=".PhoneNumberActivity" />
+        <activity
+            android:label="Edit Profile"
+            android:name=".ProfileActivity"></activity>
     </application>
 
 </manifest>
