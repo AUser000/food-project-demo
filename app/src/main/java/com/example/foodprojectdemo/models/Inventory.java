@@ -1,0 +1,33 @@
+package com.example.foodprojectdemo.models;
+
+public class Inventory {
+
+    public String traderId;
+    public String itemId;
+    public Double price;
+    public Long quantity;
+    public Long startedTime;
+    public Double lat;
+    public Double lon;
+
+    public Inventory() {
+    }
+
+    public Inventory(
+            String traderId,
+            String itemId,
+            Double price,
+            Long quantity,
+            Long startedTime,
+            Double lat,
+            Double lon)
+    {
+        this.traderId = traderId;
+        this.itemId = itemId;
+        this.price = price;
+        this.quantity = quantity;
+        this.startedTime = startedTime;
+        this.lat = lat;
+        this.lon = lon;
+    }
+}

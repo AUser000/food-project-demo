@@ -2,6 +2,7 @@ package com.example.foodprojectdemo;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -28,7 +29,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        InventoryFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
 
@@ -145,9 +147,9 @@ public class MainActivity extends AppCompatActivity
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.mainLayout, mf).commit();
         } else if (id == R.id.nav_profile) {
-            SampleFragment sf = new SampleFragment();
+            InventoryFragment inventoryFragment = new InventoryFragment();
             FragmentManager manager = getSupportFragmentManager();
-            manager.beginTransaction().replace(R.id.mainLayout, sf).commit();
+            manager.beginTransaction().replace(R.id.mainLayout, inventoryFragment).commit();
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
@@ -164,4 +166,8 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
 }
