@@ -14,12 +14,14 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,6 +68,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
     DatabaseReference mChild;
     List<LocationData> locationDataList;
     TextView text;
+    AlertDialog dialog;
 
     public MapFragment() {
     }
@@ -133,6 +136,41 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
             @Override
             public void onClick(View view) {
                 animateFab();
+                AlertDialog.Builder aBuilder = new AlertDialog.Builder(getActivity());
+                View mView = getLayoutInflater().inflate(R.layout.filter_dialog_box, null);
+
+                Button filterButton = (Button) mView.findViewById(R.id.filter_btn);
+                filterButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(getActivity(), "processing", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                        mChild.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                for (DataSnapshot dataSnap2shot1: dataSnapshot.getChildren()) {
+                                    LocationData locationData = dataSnap2shot1.getValue(LocationData.class);
+                                    locationDataList.add(locationData);
+                                }
+                                for (LocationData locationdata: locationDataList) {
+                                    double lat = locationdata.lat;
+                                    double lng = locationdata.lng;
+
+                                    map.addMarker(new MarkerOptions().position(new LatLng(lat, lng)));
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                Toast.makeText(getActivity().getApplicationContext(), " " + databaseError, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+                aBuilder.setView(mView);
+                dialog = aBuilder.create();
+                dialog.show();
+
 
                 mChild.addValueEventListener(new ValueEventListener() {
                     @Override
