@@ -10,4 +10,7 @@
     <string name="number_verification_msg">
         We will send you an SMS message containing a code you will use to verify your number
     </string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
