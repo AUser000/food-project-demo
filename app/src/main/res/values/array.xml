@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="phoneCodes">
+        <item>+94</item>
+    </string-array>
+    <string-array name="editProfileItems">
+        <item>First Name</item>
+        <item>Last Name</item>
+    </string-array>
+</resources>
