@@ -95,6 +95,35 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
         fabM1 = (FloatingActionButton) view.findViewById(R.id.fabM1);
         fabM2 = (FloatingActionButton) view.findViewById(R.id.fabM2);
         fabM3 = (FloatingActionButton) view.findViewById(R.id.fabM3);
+    }
+
+
+    private boolean checkPermission() {
+        int permissionCheck = ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION);
+        if(permissionCheck != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_PERMISSION_LOCATION
+            );
+            return false;
+        }
+        permissionGranted = true;
+        return true;
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        try {
+            boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity().getApplicationContext(), R.raw.style_json));
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e(TAG, "Can't find style. Error: ", e);
+        }
+
+
 
         fabOpen = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.fab_open);
         fabClose = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), R.anim.fab_close);
@@ -126,8 +155,8 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                     if(location != null) {
                         map.addMarker(markerOptions.
                                 position(new LatLng(location.getLatitude(), location.getLongitude())).
-                                        icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_x))
-                                );
+                                icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_x))
+                        );
                         map.animateCamera(CameraUpdateFactory.
                                 newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 14));
                     } else {
@@ -161,7 +190,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                                     double lng = locationdata.lng;
 
                                     map.addMarker(new MarkerOptions().position(new LatLng(lat, lng))
-                                            );
+                                    );
                                 }
                             }
 
@@ -199,33 +228,6 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                 });
             }
         });
-    }
-
-
-    private boolean checkPermission() {
-        int permissionCheck = ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION);
-        if(permissionCheck != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSION_LOCATION
-            );
-            return false;
-        }
-        permissionGranted = true;
-        return true;
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        map = googleMap;
-        try {
-            boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity().getApplicationContext(), R.raw.style_json));
-            if (!success) {
-                Log.e(TAG, "Style parsing failed.");
-            }
-        } catch (Resources.NotFoundException e) {
-            Log.e(TAG, "Can't find style. Error: ", e);
-        }
     }
 
     private void animateFab() {
