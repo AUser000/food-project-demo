@@ -21,7 +21,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,12 +37,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -171,6 +171,22 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                 animateFab();
                 AlertDialog.Builder aBuilder = new AlertDialog.Builder(getActivity());
                 View mView = getLayoutInflater().inflate(R.layout.filter_dialog_box, null);
+                //item logic here
+                Spinner cats = (Spinner) mView.findViewById(R.id.cat);
+                List<String> catsArray =  new ArrayList<String>();
+                catsArray.add("all");
+                catsArray.add("drinks");
+                catsArray.add("short eats");
+                ArrayAdapter<String> catsAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, catsArray);
+
+                Spinner itms = (Spinner) mView.findViewById(R.id.itm);
+                List<String> itmsArray =  new ArrayList<String>();
+                itmsArray.add("all");
+                ArrayAdapter<String> itmsAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, itmsArray);
+
+
+                cats.setAdapter(catsAdapter);
+                itms.setAdapter(itmsAdapter);
 
                 Button filterButton = (Button) mView.findViewById(R.id.filter_btn);
                 filterButton.setOnClickListener(new View.OnClickListener() {
@@ -189,8 +205,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                                     double lat = locationdata.lat;
                                     double lng = locationdata.lng;
 
-                                    map.addMarker(new MarkerOptions().position(new LatLng(lat, lng))
-                                    );
+                                    map.addMarker(new MarkerOptions().position(new LatLng(lat, lng)));
                                 }
                             }
 

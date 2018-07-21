@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="300dp"
     android:layout_height="wrap_content"
-    android:background="#3E80B4"
+    android:background="#c8d7d4"
     android:orientation="vertical" >
 
     <TextView
@@ -17,17 +17,18 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="150dp"
         android:orientation="horizontal">
 
         <Spinner
-            android:id="@+id/spinner2"
+            android:id="@+id/cat"
             android:layout_width="150dp"
-            android:layout_height="50dp"/>
+            android:layout_height="50dp"
+            android:textColor="@android:color/white"/>
 
         <Spinner
-            android:id="@+id/spinner3"
-
+            android:id="@+id/itm"
+            android:textColor="@android:color/white"
             android:layout_width="150dp"
             android:layout_height="50dp" />
     </LinearLayout>
@@ -36,6 +37,6 @@
         android:id="@+id/filter_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Button" />
+        android:text="Search" />
 
 </LinearLayout>
