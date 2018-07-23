@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -31,6 +32,7 @@ import com.example.foodprojectdemo.sample.LocationData;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -53,7 +55,7 @@ import static android.content.ContentValues.TAG;
 /**
  * Created by Dhanushka Dharmasena on 13/07/2018.
  */
-public class MapFragment extends Fragment implements com.google.android.gms.maps.OnMapReadyCallback /* com.google.android.gms.location.LocationListener*/{
+public class MapFragment extends Fragment implements com.google.android.gms.maps.OnMapReadyCallback,/* GoogleMap.OnMarkerClickListener,*/ OnInfoWindowClickListener {
     GoogleMap map;
     FloatingActionButton fabM1, fabM2, fabM3;
     Animation fabOpen, fabClose, fabRotateForward, fabRotateBackWord;
@@ -72,13 +74,13 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
     TextView text;
     AlertDialog dialog;
     Marker marker;
+    List<Marker> markerList = new ArrayList<Marker>();
 
     public MapFragment() {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.map_fragment, container, false);
         return v;
     }
@@ -197,15 +199,24 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                         mChild.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                markerList.clear();
+
                                 for (DataSnapshot dataSnap2shot1: dataSnapshot.getChildren()) {
                                     LocationData locationData = dataSnap2shot1.getValue(LocationData.class);
                                     locationDataList.add(locationData);
                                 }
+
                                 for (LocationData locationdata: locationDataList) {
                                     double lat = locationdata.lat;
                                     double lng = locationdata.lng;
 
-                                    map.addMarker(new MarkerOptions().position(new LatLng(lat, lng)));
+                                    marker = map.addMarker(new MarkerOptions()
+                                            .position(new LatLng(lat, lng))
+                                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_y))
+                                            .title("world")
+                                            .snippet("hello"));
+                                    markerList.add(marker);
                                 }
                             }
 
@@ -214,33 +225,15 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                                 Toast.makeText(getActivity().getApplicationContext(), " " + databaseError, Toast.LENGTH_SHORT).show();
                             }
                         });
+                        if(locationDataList != null){
+
+                        }
                     }
                 });
                 aBuilder.setView(mView);
                 dialog = aBuilder.create();
                 dialog.show();
 
-
-                mChild.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot dataSnap2shot1: dataSnapshot.getChildren()) {
-                            LocationData locationData = dataSnap2shot1.getValue(LocationData.class);
-                            locationDataList.add(locationData);
-                        }
-                        for (LocationData locationdata: locationDataList) {
-                            double lat = locationdata.lat;
-                            double lng = locationdata.lng;
-
-                            map.addMarker(new MarkerOptions().position(new LatLng(lat, lng)));
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Toast.makeText(getActivity().getApplicationContext(), " " + databaseError, Toast.LENGTH_SHORT).show();
-                    }
-                });
             }
         });
     }
@@ -262,6 +255,18 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
             fabIsOpen = true;
         }
     }
+
+//    @Override
+//    public boolean onMarkerClick(Marker marker) {
+//        Toast.makeText(getActivity().getApplicationContext(), "hrry!", Toast.LENGTH_SHORT).show();
+//        return true;
+//    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+            Toast.makeText(getActivity().getApplicationContext(), "hrry!", Toast.LENGTH_SHORT).show();
+    }
+
 
 //    @Override
 //    public void onLocationChanged(Location loc) {
