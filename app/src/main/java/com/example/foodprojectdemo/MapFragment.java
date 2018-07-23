@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -28,6 +27,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.foodprojectdemo.models.Category;
+import com.example.foodprojectdemo.models.Item;
 import com.example.foodprojectdemo.sample.LocationData;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -136,6 +137,51 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
         databaseReference = firebaseDatabase.getReference();
         mChild = databaseReference.child("locations");
 
+        final List<Category> catsArray =  new ArrayList<>();
+        final List<String> catsNameList = new ArrayList<>();
+        databaseReference.child("categories").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot dataSnapshot1: dataSnapshot.getChildren()) {
+                    Category categories = dataSnapshot1.getValue(Category.class);
+                    catsArray.add(categories);
+                }
+                catsNameList.add("all");
+                for (Category cat: catsArray) {
+                    catsNameList.add(cat.name);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getActivity().getApplicationContext(), "database reading error! search under all", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        final List<Item> itmsArray =  new ArrayList<>();
+        final List<String> itmsNameList = new ArrayList<>();
+        databaseReference.child("items").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot dataSnapshot1: dataSnapshot.getChildren()) {
+                    Item item= dataSnapshot1.getValue(Item.class);
+                    itmsArray.add(item);
+                }
+
+                itmsNameList.add("all");
+                for (Item item: itmsArray) {
+                    itmsNameList.add(item.name);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getActivity().getApplicationContext(), "database reading error! search under all", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+
         fabM1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -175,17 +221,14 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                 View mView = getLayoutInflater().inflate(R.layout.filter_dialog_box, null);
                 //item logic here
                 Spinner cats = (Spinner) mView.findViewById(R.id.cat);
-                List<String> catsArray =  new ArrayList<String>();
-                catsArray.add("all");
-                catsArray.add("drinks");
-                catsArray.add("short eats");
-                ArrayAdapter<String> catsAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, catsArray);
+
+                ArrayAdapter<String> catsAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, catsNameList);
+
+
 
                 Spinner itms = (Spinner) mView.findViewById(R.id.itm);
-                List<String> itmsArray =  new ArrayList<String>();
-                itmsArray.add("all");
-                ArrayAdapter<String> itmsAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, itmsArray);
 
+                ArrayAdapter<String> itmsAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, itmsNameList);
 
                 cats.setAdapter(catsAdapter);
                 itms.setAdapter(itmsAdapter);
@@ -264,7 +307,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-            Toast.makeText(getActivity().getApplicationContext(), "hrry!", Toast.LENGTH_SHORT).show();
+
     }
 
 
