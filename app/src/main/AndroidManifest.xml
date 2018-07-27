@@ -48,8 +48,9 @@
 
         <activity android:name=".PhoneNumberActivity" />
         <activity
-            android:label="Edit Profile"
-            android:name=".ProfileActivity"></activity>
+            android:name=".ProfileActivity"
+            android:label="Edit Profile" />
+        <activity android:name=".OrderActivity"></activity>
     </application>
 
 </manifest>

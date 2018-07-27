@@ -2,6 +2,7 @@ package com.example.foodprojectdemo;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Criteria;
@@ -56,7 +57,7 @@ import static android.content.ContentValues.TAG;
 /**
  * Created by Dhanushka Dharmasena on 13/07/2018.
  */
-public class MapFragment extends Fragment implements com.google.android.gms.maps.OnMapReadyCallback,/* GoogleMap.OnMarkerClickListener,*/ OnInfoWindowClickListener {
+public class MapFragment extends Fragment implements com.google.android.gms.maps.OnMapReadyCallback{
     GoogleMap map;
     FloatingActionButton fabM1, fabM2, fabM3;
     Animation fabOpen, fabClose, fabRotateForward, fabRotateBackWord;
@@ -74,6 +75,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
     List<LocationData> locationDataList;
     TextView text;
     AlertDialog dialog;
+    AlertDialog dialogF;
     Marker marker;
     List<Marker> markerList = new ArrayList<Marker>();
 
@@ -279,6 +281,15 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
 
             }
         });
+
+        map.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Intent intent = new Intent(getActivity(),OrderActivity.class);
+                intent.putExtra("Key", marker.getTitle());
+                startActivity(intent);
+            }
+        });
     }
 
     private void animateFab() {
@@ -299,18 +310,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
         }
     }
 
-//    @Override
-//    public boolean onMarkerClick(Marker marker) {
-//        Toast.makeText(getActivity().getApplicationContext(), "hrry!", Toast.LENGTH_SHORT).show();
-//        return true;
-//    }
-
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-
-    }
-
-
+// this code for location changes
 //    @Override
 //    public void onLocationChanged(Location loc) {
 //        location = loc;
