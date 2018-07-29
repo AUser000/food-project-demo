@@ -1,12 +1,43 @@
 package com.example.foodprojectdemo;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+
+import com.example.foodprojectdemo.models.Inventory;
+import com.example.foodprojectdemo.models.Item;
+import com.example.foodprojectdemo.models.SpinnerItem;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -26,6 +57,14 @@ public class InventoryFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private static final String TAG = "InventoryFragment";
+
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
+    private boolean mLocationPermissionGranted = false;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+
+    private DatabaseReference mDatabase;
 
     private OnFragmentInteractionListener mListener;
 
@@ -58,13 +97,97 @@ public class InventoryFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        // firebase database reference
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        // grant location permissions
+        getLocationPermission();
+        // construct a FusedLocationProviderClient
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_inventory, container, false);
+
+        final View view = inflater.inflate(R.layout.fragment_inventory, container, false);
+
+        Button inventoryAddButton = view.findViewById(R.id.inventoryAddButton);
+        inventoryAddButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // trader id
+                final String traderId = FirebaseAuth.getInstance().getUid();
+
+                // item id
+                Spinner inventoryItemSpinner = view.findViewById(R.id.inventoryItemSpinner);
+                SpinnerItem item = (SpinnerItem) inventoryItemSpinner.getSelectedItem();
+                final String itemId = item.getKey();
+
+                // price
+                EditText inventoryPriceText = view.findViewById(R.id.inventoryPriceText);
+                final Double price = Double.parseDouble(inventoryPriceText.getText().toString());
+
+                // quantity
+                EditText inventoryQuantityText = view.findViewById(R.id.inventoryQuantityText);
+                final Long quantity = Long.parseLong(inventoryQuantityText.getText().toString());
+
+                // started time
+                final Long startedTime = System.currentTimeMillis() / 1000L;
+
+                if (mLocationPermissionGranted) {
+                    @SuppressLint("MissingPermission") Task locationResult =
+                            mFusedLocationProviderClient.getLastLocation();
+                    locationResult.addOnCompleteListener(getActivity(), new OnCompleteListener() {
+                        @Override
+                        public void onComplete(@NonNull Task task) {
+                            if (task.isSuccessful()) {
+                                Location location = (Location) task.getResult();
+                                final Double lat = location.getLatitude();
+                                final Double lon = location.getLongitude();
+
+                                Inventory inventory = new Inventory(
+                                        traderId, itemId, price, quantity, startedTime, lat, lon);
+                                // write into the database
+                                mDatabase.child("inventory").push().setValue(inventory);
+                            } else {
+                                Log.d(TAG, "Current location is null");
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+        //////////////////////////////////////////////////////////////////////
+        ValueEventListener itemListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                GenericTypeIndicator<HashMap<String, Item>> type =
+                        new GenericTypeIndicator<HashMap<String, Item>>() {};
+                Map<String, Item> items = dataSnapshot.getValue(type);
+                updateUI(items, view);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        mDatabase.child("items").addValueEventListener(itemListener);
+        //////////////////////////////////////////////////////////////////////
+        return view;
+    }
+
+    private void updateUI(Map<String, Item> items, View view) {
+        ArrayList<SpinnerItem> spinnerItemArrayList = new ArrayList<SpinnerItem>();
+        for (Map.Entry<String, Item> entry : items.entrySet()) {
+            spinnerItemArrayList.add(new SpinnerItem(entry.getKey(), entry.getValue().name));
+        }
+        ArrayAdapter<SpinnerItem> adapter = new ArrayAdapter<SpinnerItem>(
+                view.getContext(), android.R.layout.simple_spinner_item, spinnerItemArrayList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        Spinner spinner = view.findViewById(R.id.inventoryItemSpinner);
+        spinner.setAdapter(adapter);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -104,5 +227,34 @@ public class InventoryFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    private void getLocationPermission() {
+        if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED)
+        {
+            mLocationPermissionGranted = true;
+        } else {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults)
+    {
+        mLocationPermissionGranted = false;
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
+                if (grantResults.length > 0 && grantResults[0]
+                        == PackageManager.PERMISSION_GRANTED)
+                {
+                    mLocationPermissionGranted = true;
+                }
+        }
     }
 }

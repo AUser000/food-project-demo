@@ -6,13 +6,13 @@ import com.google.firebase.database.IgnoreExtraProperties;
 public class Item {
 
     public String name;
-    public String category;
+    public String categoryId;
 
     public Item() {
     }
 
-    public Item(String name, String category) {
+    public Item(String name, String categoryId) {
         this.name = name;
-        this.category = category;
+        this.categoryId = categoryId;
     }
 }
