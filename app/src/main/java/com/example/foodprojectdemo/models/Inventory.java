@@ -8,7 +8,7 @@ public class Inventory {
     public Long quantity;
     public Long startedTime;
     public Double lat;
-    public Double lon;
+    public Double lng;
 
     public Inventory() {
     }
@@ -20,7 +20,7 @@ public class Inventory {
             Long quantity,
             Long startedTime,
             Double lat,
-            Double lon)
+            Double lng)
     {
         this.traderId = traderId;
         this.itemId = itemId;
@@ -28,6 +28,6 @@ public class Inventory {
         this.quantity = quantity;
         this.startedTime = startedTime;
         this.lat = lat;
-        this.lon = lon;
+        this.lng = lng;
     }
 }

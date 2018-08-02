@@ -143,10 +143,10 @@ public class InventoryFragment extends Fragment {
                             if (task.isSuccessful()) {
                                 Location location = (Location) task.getResult();
                                 final Double lat = location.getLatitude();
-                                final Double lon = location.getLongitude();
+                                final Double lng = location.getLongitude();
 
                                 Inventory inventory = new Inventory(
-                                        traderId, itemId, price, quantity, startedTime, lat, lon);
+                                        traderId, itemId, price, quantity, startedTime, lat, lng);
                                 // write into the database
                                 mDatabase.child("inventory").push().setValue(inventory);
                             } else {
