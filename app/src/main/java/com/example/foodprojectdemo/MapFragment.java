@@ -29,6 +29,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.foodprojectdemo.models.Category;
+import com.example.foodprojectdemo.models.Inventory;
+import com.example.foodprojectdemo.models.InventoryMetaData;
 import com.example.foodprojectdemo.models.Item;
 import com.example.foodprojectdemo.sample.LocationData;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -72,12 +74,14 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
     DatabaseReference mChild;
+    DatabaseReference childInventory;
     List<LocationData> locationDataList;
     TextView text;
     AlertDialog dialog;
     AlertDialog dialogF;
     Marker marker;
     List<Marker> markerList = new ArrayList<Marker>();
+    List<InventoryMetaData> inventoryMetaDataList = new ArrayList<>();
 
     public MapFragment() {
     }
@@ -138,6 +142,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference();
         mChild = databaseReference.child("locations");
+        childInventory = databaseReference.child("inventory");
 
         final List<Category> catsArray =  new ArrayList<>();
         final List<String> catsNameList = new ArrayList<>();
@@ -200,7 +205,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                 provider = locationManager.getBestProvider(new Criteria(), false);
 
                 checkPermission();
-                if(permissionGranted) {
+                if(permissionGranted || android.os.Build.VERSION.SDK_INT > 23) {
                     location = locationManager.getLastKnownLocation(provider);
                     if(location != null) {
                         map.addMarker(markerOptions.
@@ -209,6 +214,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                         );
                         map.animateCamera(CameraUpdateFactory.
                                 newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 14));
+                        text.setText("lat: "+location.getLatitude()+"\nlng: "+location.getLongitude());
                     } else {
                         text.setText("null location");
                     }
@@ -241,35 +247,76 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                     public void onClick(View view) {
                         Toast.makeText(getActivity(), "processing", Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
-                        mChild.addValueEventListener(new ValueEventListener() {
+
+                        childInventory.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                                 markerList.clear();
+                                //inventoryMetaDataList.clear();
+                                for (DataSnapshot dataSnapshot1: dataSnapshot.getChildren()) {
 
-                                for (DataSnapshot dataSnap2shot1: dataSnapshot.getChildren()) {
-                                    LocationData locationData = dataSnap2shot1.getValue(LocationData.class);
-                                    locationDataList.add(locationData);
+                                    InventoryMetaData inventoryMetaData = new InventoryMetaData();
+
+                                    inventoryMetaData.inventoryId = (String)dataSnapshot1.getKey();
+                                    inventoryMetaData.lat = (double)dataSnapshot1.child("lat").getValue();
+                                    inventoryMetaData.lng = (double)dataSnapshot1.child("lng").getValue();
+                                    inventoryMetaData.itemId = dataSnapshot.child("itemId").getValue(String.class);
+
+                                    inventoryMetaDataList.add(inventoryMetaData);
                                 }
 
-                                for (LocationData locationdata: locationDataList) {
-                                    double lat = locationdata.lat;
-                                    double lng = locationdata.lng;
+                                for (InventoryMetaData inventoryMetaData :inventoryMetaDataList) {
+                                    double lat = inventoryMetaData.lat;
+                                    double lng = inventoryMetaData.lng;
+                                    String itemId = inventoryMetaData.itemId;
+                                    String traderId = inventoryMetaData.inventoryId;
 
                                     marker = map.addMarker(new MarkerOptions()
                                             .position(new LatLng(lat, lng))
                                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_y))
-                                            .title("world")
-                                            .snippet("hello"));
+                                            .title("K"+itemId)
+                                            .snippet(""+traderId))
+                                            ;
                                     markerList.add(marker);
                                 }
+                                inventoryMetaDataList.clear();
                             }
 
                             @Override
                             public void onCancelled(@NonNull DatabaseError databaseError) {
-                                Toast.makeText(getActivity().getApplicationContext(), " " + databaseError, Toast.LENGTH_SHORT).show();
+
                             }
                         });
+
+//                        mChild.addValueEventListener(new ValueEventListener() {
+//                            @Override
+//                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//
+//                                markerList.clear();
+//
+//                                for (DataSnapshot dataSnap2shot1: dataSnapshot.getChildren()) {
+//                                    LocationData locationData = dataSnap2shot1.getValue(LocationData.class);
+//                                    locationDataList.add(locationData);
+//                                }
+//
+//                                for (LocationData locationdata: locationDataList) {
+//                                    double lat = locationdata.lat;
+//                                    double lng = locationdata.lng;
+//
+//                                    marker = map.addMarker(new MarkerOptions()
+//                                            .position(new LatLng(lat, lng))
+//                                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_y))
+//                                            .title("world")
+//                                            .snippet("hello"));
+//                                    markerList.add(marker);
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                                Toast.makeText(getActivity().getApplicationContext(), " " + databaseError, Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
                         if(locationDataList != null){
 
                         }
