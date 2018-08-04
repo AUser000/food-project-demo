@@ -60,28 +60,40 @@ import static android.content.ContentValues.TAG;
  * Created by Dhanushka Dharmasena on 13/07/2018.
  */
 public class MapFragment extends Fragment implements com.google.android.gms.maps.OnMapReadyCallback{
+    //map and markers
     GoogleMap map;
+    Marker marker;
+    MarkerOptions markerOptions;
+    LocationManager locationManager;
+
+    //View components
     FloatingActionButton fabM1, fabM2, fabM3;
     Animation fabOpen, fabClose, fabRotateForward, fabRotateBackWord;
     boolean fabIsOpen = false;
-    LocationManager locationManager;
+    TextView text;
+    AlertDialog dialog;
+
+    //location providers
     String provider;
     Location location;
-    MarkerOptions markerOptions;
-    private FusedLocationProviderClient mFusedLocationClient;
+
+    //permissions
     public final int REQUEST_PERMISSION_LOCATION = 101;
     private boolean permissionGranted = false;
+
+    //database references
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
     DatabaseReference mChild;
     DatabaseReference childInventory;
-    List<LocationData> locationDataList;
-    TextView text;
-    AlertDialog dialog;
-    AlertDialog dialogF;
-    Marker marker;
+
+    //lists
     List<Marker> markerList = new ArrayList<Marker>();
     List<InventoryMetaData> inventoryMetaDataList = new ArrayList<>();
+    List<Category> catsArray =  new ArrayList<>();
+    List<String> catsNameList = new ArrayList<>();
+    List<Item> itmsArray =  new ArrayList<>();
+    List<String> itmsNameList = new ArrayList<>();
 
     public MapFragment() {
     }
@@ -98,7 +110,6 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
         final SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map1);
         mapFragment.getMapAsync(this);
         markerOptions = new MarkerOptions();
-        locationDataList = new ArrayList<>();
         text = (TextView) view.findViewById(R.id.textOnMap);
 
         fabM1 = (FloatingActionButton) view.findViewById(R.id.fabM1);
@@ -144,8 +155,6 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
         mChild = databaseReference.child("locations");
         childInventory = databaseReference.child("inventory");
 
-        final List<Category> catsArray =  new ArrayList<>();
-        final List<String> catsNameList = new ArrayList<>();
         databaseReference.child("categories").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -165,8 +174,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
             }
         });
 
-        final List<Item> itmsArray =  new ArrayList<>();
-        final List<String> itmsNameList = new ArrayList<>();
+
         databaseReference.child("items").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -252,16 +260,12 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 markerList.clear();
-                                //inventoryMetaDataList.clear();
                                 for (DataSnapshot dataSnapshot1: dataSnapshot.getChildren()) {
-
                                     InventoryMetaData inventoryMetaData = new InventoryMetaData();
-
                                     inventoryMetaData.inventoryId = (String)dataSnapshot1.getKey();
+                                    inventoryMetaData.itemId = (String)dataSnapshot1.child("itemId").getValue();
                                     inventoryMetaData.lat = (double)dataSnapshot1.child("lat").getValue();
                                     inventoryMetaData.lng = (double)dataSnapshot1.child("lng").getValue();
-                                    inventoryMetaData.itemId = dataSnapshot.child("itemId").getValue(String.class);
-
                                     inventoryMetaDataList.add(inventoryMetaData);
                                 }
 
@@ -269,14 +273,12 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                                     double lat = inventoryMetaData.lat;
                                     double lng = inventoryMetaData.lng;
                                     String itemId = inventoryMetaData.itemId;
-                                    String traderId = inventoryMetaData.inventoryId;
-
+                                    String inventoryId = inventoryMetaData.inventoryId;
                                     marker = map.addMarker(new MarkerOptions()
                                             .position(new LatLng(lat, lng))
                                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_y))
-                                            .title("K"+itemId)
-                                            .snippet(""+traderId))
-                                            ;
+                                            .title("Item name : " + itemId)               // item
+                                            .snippet("inventory id : " + inventoryId));    // inventory
                                     markerList.add(marker);
                                 }
                                 inventoryMetaDataList.clear();
@@ -288,38 +290,6 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
                             }
                         });
 
-//                        mChild.addValueEventListener(new ValueEventListener() {
-//                            @Override
-//                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//
-//                                markerList.clear();
-//
-//                                for (DataSnapshot dataSnap2shot1: dataSnapshot.getChildren()) {
-//                                    LocationData locationData = dataSnap2shot1.getValue(LocationData.class);
-//                                    locationDataList.add(locationData);
-//                                }
-//
-//                                for (LocationData locationdata: locationDataList) {
-//                                    double lat = locationdata.lat;
-//                                    double lng = locationdata.lng;
-//
-//                                    marker = map.addMarker(new MarkerOptions()
-//                                            .position(new LatLng(lat, lng))
-//                                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_y))
-//                                            .title("world")
-//                                            .snippet("hello"));
-//                                    markerList.add(marker);
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(@NonNull DatabaseError databaseError) {
-//                                Toast.makeText(getActivity().getApplicationContext(), " " + databaseError, Toast.LENGTH_SHORT).show();
-//                            }
-//                        });
-                        if(locationDataList != null){
-
-                        }
                     }
                 });
                 aBuilder.setView(mView);
