@@ -51,11 +51,20 @@
                 android:textSize="20sp" />
 
             <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Contact"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Available Time"
                 android:textColor="@android:color/black"
                 android:textSize="20sp" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -100,12 +109,21 @@
                 android:textSize="20sp" />
 
             <TextView
+                android:id="@+id/contact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="syncing...-contact"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+
+            <TextView
                 android:id="@+id/time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="syncing..."
                 android:textColor="@android:color/black"
                 android:textSize="20sp" />
+
         </LinearLayout>
     </LinearLayout>
 

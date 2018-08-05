@@ -304,7 +304,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
             @Override
             public void onInfoWindowClick(Marker marker) {
                 Intent intent = new Intent(getActivity(),OrderActivity.class);
-                intent.putExtra("Key", marker.getTitle());
+                intent.putExtra("InvId", marker.getSnippet().replace("inventory id : ",""));
                 startActivity(intent);
             }
         });
