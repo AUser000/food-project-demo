@@ -134,6 +134,7 @@ public class MapFragment extends Fragment implements com.google.android.gms.maps
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(7.75, 80.7), 8));
         map.getUiSettings().setMapToolbarEnabled(false);
         try {
             boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity().getApplicationContext(), R.raw.style_json));
